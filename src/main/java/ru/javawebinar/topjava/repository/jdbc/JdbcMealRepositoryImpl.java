@@ -50,7 +50,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
             Number newKey = insertMeal.executeAndReturnKey(map);
             meal.setId(newKey.intValue());
         } else if (namedParameterJdbcTemplate.update(
-                "UPDATE meals SET user_id=:userID, datetime=:dateTime, description=:description,calories=:calories WHERE id=:id",map) == 0) return null;
+                "UPDATE meals SET user_id=:user_id, datetime=:dateTime, description=:description,calories=:calories WHERE id=:id",map) == 0) return null;
         return meal;
     }
 
@@ -66,15 +66,11 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE user_id=?",ROW_MAPPER,userId);
-        meals.sort(Comparator.comparing(Meal::getDateTime).reversed());
-        return meals;
+        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? ORDER BY datetime",ROW_MAPPER,userId);
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE datetime>=? AND datetime<=? AND user_id=?",ROW_MAPPER,startDate,endDate,userId);
-        meals.sort(Comparator.comparing(Meal::getDateTime).reversed());
-        return meals;
+        return jdbcTemplate.query("SELECT * FROM meals WHERE datetime>=? AND datetime<=? AND user_id=? ORDER BY datetime",ROW_MAPPER,startDate,endDate,userId);
     }
 }
