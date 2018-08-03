@@ -9,11 +9,13 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @ContextConfiguration({
@@ -39,10 +41,25 @@ public class MealServiceTest {
         assertMatch(meal,BREAKFAST1);
     }
 
+    @Test(expected = NotFoundException.class)
+    public void getWithWrongId() {
+        service.get(BREAKFAST2_ID,ADMIN_ID);
+    }
+
     @Test
     public void delete() throws Exception {
         service.delete(BREAKFAST1_ID, USER_ID);
         assertMatch(service.getAll(USER_ID), LUNCH1,DINNER1,BREAKFAST2,LUNCH2,DINNER2);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void deleteWithWrongUserId() {
+        service.delete(DINNER1_ID,ADMIN_ID);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void deleteWithWrongMealId() {
+        service.delete(1,USER_ID);
     }
 
     @Test
